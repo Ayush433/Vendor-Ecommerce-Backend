@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../Models/userModel");
+const sendMail = require("../Utils/sendMail");
 
 module.exports.userSignup = async (req, res) => {
   const { fullName, password, email } = req.body;
@@ -22,6 +23,12 @@ module.exports.userSignup = async (req, res) => {
       password: hashedPassword,
       // avatar: req.file.filename,
     });
+    await sendMail({
+      email: email,
+      subject: "Registration Successful",
+      text: "Thank you for registering with us.",
+    });
+
     return res
       .status(201)
       .json({ status: 201, message: "User Successfully Registered " });
