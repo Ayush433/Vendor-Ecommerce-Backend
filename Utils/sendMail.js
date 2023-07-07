@@ -4,7 +4,7 @@ const sendMail = async (option) => {
   const transporter = nodemailer.createTransport({
     host: process.env.SMPT_HOST,
     port: process.env.SMPT_PORT,
-    services: process.env.SMPT_SERVICES,
+    service: process.env.SMPT_SERVICES,
     auth: {
       user: process.env.SMPT_MAIL,
       pass: process.env.SMPT_PASSWORD,
@@ -14,7 +14,7 @@ const sendMail = async (option) => {
     from: process.env.SMPT_MAIL,
     to: option.email,
     subject: option.subject,
-    text: option.message,
+    text: option.text,
   };
   await transporter.sendMail(mailOptions);
 };

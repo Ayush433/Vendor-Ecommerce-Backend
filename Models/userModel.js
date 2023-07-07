@@ -14,6 +14,7 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+
   //   phoneNumber: {
   //     type: Number,
   //   },
@@ -39,10 +40,10 @@ const userSchema = new Schema({
   //       },
   //     },
   //   ],
-  //   role: {
-  //     type: String,
-  //     default: "user",
-  //   },
+  role: {
+    type: String,
+    default: "user",
+  },
   avatar: {
     public_id: {
       type: String,

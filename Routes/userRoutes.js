@@ -5,5 +5,6 @@ const { upload } = require("../multer");
 const userController = require("../Controller/userController");
 
 router.post("/api/signup", userController.userSignup);
+router.post("/api/login", userController.userLogin);
 
 module.exports = router;
