@@ -4,7 +4,7 @@ const app = express();
 const morgan = require("morgan");
 const cors = require("cors");
 require("dotenv").config();
-const userRoutes = require("./Routes/userRoutes");
+const Index = require("./Routes/index");
 const bodyParser = require("body-parser");
 
 // app Use
@@ -43,4 +43,4 @@ mongoose
   .catch((error) => {
     console.error("Error connecting to MongoDB:", error);
   });
-app.use(userRoutes);
+app.use("/api", Index);

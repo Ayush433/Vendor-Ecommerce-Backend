@@ -86,3 +86,81 @@ module.exports.userLogin = async (req, res) => {
     return res.status(400).json(err);
   }
 };
+
+module.exports.UserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      res.status(401).json({
+        message: "User Not Found",
+        status: 401,
+      });
+    }
+    const UserProfile = {
+      user,
+    };
+    res.status(200).json(UserProfile);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 500,
+      message: { error },
+    });
+  }
+};
+
+module.exports.singleUser = async (req, res) => {
+  try {
+    const user = await User.find(req.params.id);
+    if (!user) {
+      return res.status(400).json({
+        status: 400,
+        message: "User Not Found",
+      });
+    }
+    const UserProfile = {
+      fullName: user.fullName,
+      email: user.email,
+    };
+    return res.status(200).json(UserProfile);
+  } catch (error) {
+    return res.status(400).json({
+      status: 401,
+      message: { error },
+    });
+  }
+};
+
+module.exports.editUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    console.log(user);
+    return res.status(200).json({
+      status: 200,
+      user,
+    });
+  } catch (error) {
+    return res.status(401).json({
+      status: 401,
+      message: { error },
+    });
+  }
+};
+
+module.exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    console.log(user);
+    return res.status(200).json({
+      status: 200,
+      message: "User Deleted Successfully",
+    });
+  } catch (error) {
+    return res.status(400).json({
+      status: 401,
+      message: { error },
+    });
+  }
+};
