@@ -1,7 +1,9 @@
 const httpStatus = require("http-status");
 const isEmpty = require("../Middleware/validation/isEmpty");
 const otherHelper = require("../helper/other.helper");
+const config = require("../Controller/userConfig");
 const validationHelper = require("../helper/validate.helper");
+
 const validation = {};
 
 validation.sanitizeRegister = (req, res, next) => {
@@ -55,3 +57,4 @@ validation.validateLoginInput = (req, res, next) => {
   ];
   const errors = validationHelper.validation(data, validateArray);
 };
+module.exports = validation;
