@@ -2,36 +2,39 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../Models/userModel");
 const sendMail = require("../Utils/sendMail");
-
+const otherHelper = require("../helper/other.helper");
+const httpStatus = require("http-status");
 module.exports.userSignup = async (req, res) => {
-  const { fullName, password, email, role } = req.body;
-  console.log(req.body);
-
   try {
+    const { fullName, password, email, role } = req.body;
+
     const isExistUser = await User.findOne({ email });
-
     if (isExistUser) {
-      return res
-        .status(400)
-        .json({ status: 400, message: "User Already Exists" });
+      const error = { email: "Email Already exists" };
+      const data = { email: email, fullName: fullName, role: role };
+      return otherHelper.sendResponse(
+        res,
+        httpStatus.CONFLICT,
+        false,
+        data,
+        error,
+        error.email,
+        null
+      );
     }
-
     const hashedPassword = await bcrypt.hash(password, 8);
     const verificationToken = jwt.sign({ email }, "tokenGenerate", {
       expiresIn: "1h",
     });
 
-    await User.create({
+    const user = await User.create({
       fullName,
       email,
       password: hashedPassword,
       verificationToken,
       role,
     });
-
     const verificationLink = `http://localhost:5173/verify/${verificationToken}`;
-    console.log(verificationLink);
-
     try {
       await sendMail({
         email,
@@ -53,10 +56,22 @@ module.exports.userSignup = async (req, res) => {
 };
 
 module.exports.userLogin = async (req, res) => {
-  const { password, email } = req.body;
-
   try {
+    let errors = {};
+    const { password, email } = req.body;
     const isExistUser = await User.findOne({ email: email });
+    if (!isExistUser) {
+      errors.email = "User Not Found Please Check Your Email address";
+      return otherHelper.sendResponse(
+        res,
+        httpStatus.NOT_FOUND,
+        false,
+        null,
+        errors,
+        errors.email,
+        null
+      );
+    }
     if (isExistUser) {
       const isValidPassword = await bcrypt.compareSync(
         password,
