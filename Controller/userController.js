@@ -4,6 +4,7 @@ const User = require("../Models/userModel");
 const sendMail = require("../Utils/sendMail");
 const otherHelper = require("../helper/other.helper");
 const httpStatus = require("http-status");
+const userConfig = require("./userConfig");
 module.exports.userSignup = async (req, res) => {
   try {
     const { fullName, password, email, role } = req.body;
@@ -89,9 +90,16 @@ module.exports.userLogin = async (req, res) => {
           },
         });
       } else {
-        return res
-          .status(400)
-          .json({ message: "Password Incorrect Please Check Your Password " });
+        errors.password = "Password Incorrect";
+        return otherHelper.sendResponse(
+          res,
+          httpStatus.BAD_REQUEST,
+          false,
+          null,
+          errors,
+          errors.password,
+          null
+        );
       }
     }
     return res
