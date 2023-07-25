@@ -5,10 +5,10 @@ const sendMail = require("../Utils/sendMail");
 const otherHelper = require("../helper/other.helper");
 const httpStatus = require("http-status");
 const userConfig = require("./userConfig");
+
 module.exports.userSignup = async (req, res) => {
   try {
     const { fullName, password, email, role } = req.body;
-
     const isExistUser = await User.findOne({ email });
     if (isExistUser) {
       const error = { email: "Email Already exists" };
@@ -58,9 +58,10 @@ module.exports.userSignup = async (req, res) => {
 
 module.exports.userLogin = async (req, res) => {
   try {
-    let errors = {};
     const { password, email } = req.body;
-    const isExistUser = await User.findOne({ email: email });
+    let errors = {};
+    const isExistUser = await User.findOne({ email });
+
     if (!isExistUser) {
       errors.email = "User Not Found Please Check Your Email address";
       return otherHelper.sendResponse(
@@ -102,9 +103,7 @@ module.exports.userLogin = async (req, res) => {
         );
       }
     }
-    return res
-      .status(401)
-      .json({ message: "User Not Found Please Login as soon as Possible " });
+    return res.status(401).json({ message: "User Not Found Please Login " });
   } catch (err) {
     return res.status(400).json(err);
   }

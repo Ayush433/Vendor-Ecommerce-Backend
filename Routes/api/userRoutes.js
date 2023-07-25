@@ -1,6 +1,5 @@
 const express = require("express");
 const joi = require("joi");
-const validateLoginInput = require("../../Controller/userValidation");
 const router = express.Router();
 const auth = require("../../Middleware/auth");
 const userController = require("../../Controller/userController");
@@ -16,7 +15,7 @@ const customMessages = {
 };
 
 const SignUpSchema = joi.object({
-  fullName: joi.string().min(5).max(20).required(),
+  fullName: joi.string().min(5).max(80).required(),
   email: joi.string().email().required(),
   password: joi.string().required("").max(20),
 });
