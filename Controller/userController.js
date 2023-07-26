@@ -8,11 +8,18 @@ const userConfig = require("./userConfig");
 
 module.exports.userSignup = async (req, res) => {
   try {
-    const { fullName, password, email, role } = req.body;
+    const { fullName, password, email, role, gender, address, cars } = req.body;
     const isExistUser = await User.findOne({ email });
     if (isExistUser) {
       const error = { email: "Email Already exists" };
-      const data = { email: email, fullName: fullName, role: role };
+      const data = {
+        email,
+        fullName,
+        role,
+        gender,
+        cars,
+        address,
+      };
       return otherHelper.sendResponse(
         res,
         httpStatus.CONFLICT,
@@ -34,6 +41,9 @@ module.exports.userSignup = async (req, res) => {
       password: hashedPassword,
       verificationToken,
       role,
+      cars,
+      gender,
+      address,
     });
     const verificationLink = `http://localhost:5173/verify/${verificationToken}`;
     try {
@@ -63,7 +73,7 @@ module.exports.userLogin = async (req, res) => {
     const isExistUser = await User.findOne({ email });
 
     if (!isExistUser) {
-      errors.email = "User Not Found Please Check Your Email address";
+      errors.email = userConfig.validationMessage.emailRequired;
       return otherHelper.sendResponse(
         res,
         httpStatus.NOT_FOUND,
@@ -91,7 +101,7 @@ module.exports.userLogin = async (req, res) => {
           },
         });
       } else {
-        errors.password = "Password Incorrect";
+        errors.password = userConfig.validationMessage.passwordMismatch;
         return otherHelper.sendResponse(
           res,
           httpStatus.BAD_REQUEST,

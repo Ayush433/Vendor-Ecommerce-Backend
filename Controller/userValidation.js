@@ -3,13 +3,14 @@ const isEmpty = require("../Middleware/validation/isEmpty");
 const otherHelper = require("../helper/other.helper");
 const config = require("../Controller/userConfig");
 const validationHelper = require("../helper/validate.helper");
+const sanitizeHelper = require("../helper/sanitize.helper");
 
 const validation = {};
 
 validation.sanitizeRegister = (req, res, next) => {
   const sanitizeArray = [
     {
-      field: "name",
+      field: "fullName",
       sanitize: {
         trim: true,
       },
@@ -24,37 +25,15 @@ validation.sanitizeRegister = (req, res, next) => {
   sanitizeHelper.sanitize(req, sanitizeArray);
   next();
 };
-validation.validateLoginInput = (req, res, next) => {
-  const data = req.body;
-  const validateArray = [
+validation.sanitizeLogin = (req, res, next) => {
+  const sanitizeArray = [
     {
       field: "email",
-      validate: [
-        {
-          condition: "IsEmpty",
-          msg: config.validate.empty,
-        },
-        {
-          condition: "IsEmail",
-          msg: config.validate.isEmail,
-        },
-      ],
-    },
-    {
-      field: "password",
-      validate: [
-        {
-          condition: "IsEmpty",
-          msg: config.validate.empty,
-        },
-        {
-          condition: "IsLength",
-          msg: config.validate.passLength,
-          option: { min: 6, max: 30 },
-        },
-      ],
+      sanitize: {
+        trim: true,
+      },
     },
   ];
-  const errors = validationHelper.validation(data, validateArray);
+  sanitizeHelper.sanitize(req, sanitizeArray);
 };
 module.exports = validation;
