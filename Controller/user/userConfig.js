@@ -19,6 +19,7 @@ module.exports = {
     rolesRequired: "Sorry, you missed the roles field!",
     userOrCompanyRequired:
       "Please select at least one between company and user for subscription",
+    passwordChange: "Password Changed Successfully",
   },
   validate: {
     empty: "This field is required",
@@ -54,6 +55,7 @@ module.exports = {
   registerAdmin: "User Register Successfully.",
   emailVerify: "Email Verified Successful",
   subscribeFail: "Subscription failed",
+  notauthorized: "Not Authorized",
   alverified: {
     message: "Already verified. You can log in",
     is_verified: true,

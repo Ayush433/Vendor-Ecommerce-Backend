@@ -87,13 +87,18 @@ module.exports.userLogin = async (req, res) => {
         isExistUser.password
       );
       if (isValidPassword) {
-        const token = jwt.sign({ id: isExistUser._id }, "tokenGenerate");
+        const token = jwt.sign(
+          { id: isExistUser._id, role: isExistUser.role },
+          "tokenGenerate"
+        );
+        console.log("generated Token", token);
         return res.status(200).json({
           status: 200,
           data: {
             id: isExistUser._id,
             fullName: isExistUser.fullName,
             email: isExistUser.email,
+            role: isExistUser.role,
             token,
           },
         });
@@ -109,7 +114,6 @@ module.exports.userLogin = async (req, res) => {
         );
       }
     }
-    // return res.status(401).json({ message: "User Not Found Please Login " });
     return otherHelper.sendResponse(
       res,
       httpStatus.BAD_REQUEST,
@@ -118,7 +122,12 @@ module.exports.userLogin = async (req, res) => {
       userConfig.validationMessage.Email
     );
   } catch (err) {
-    return res.status(400).json(err);
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.INTERNAL_SERVER_ERROR,
+      false,
+      userConfig.server
+    );
   }
 };
 
@@ -196,7 +205,7 @@ module.exports.editUser = async (req, res) => {
     const user = await User.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    console.log(user);
+    console.log("user", user);
     return otherHelper.sendResponse(
       res,
       httpStatus.OK,
@@ -217,14 +226,22 @@ module.exports.editUser = async (req, res) => {
 module.exports.deleteUser = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
-    console.log(user);
-    return otherHelper.sendResponse(
-      res,
-      httpStatus.OK,
-      true,
-      null,
-      userConfig.delete
-    );
+    if (user) {
+      return otherHelper.sendResponse(
+        res,
+        httpStatus.OK,
+        true,
+        null,
+        userConfig.delete
+      );
+    } else {
+      return otherHelper.sendResponse(
+        res,
+        httpStatus.NOT_FOUND,
+        false,
+        userConfig.notfound
+      );
+    }
   } catch (error) {
     return otherHelper.sendResponse(
       res,
@@ -247,5 +264,36 @@ module.exports.allUser = async (req, res) => {
       false,
       userConfig.server
     );
+  }
+};
+
+module.exports.changePassword = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const body = req.body;
+
+    const user = await User.findOne({ _id: id });
+
+    const ValidPassword = await user.comparePassword(body.oldPassword);
+
+    if (!ValidPassword) {
+      return otherHelper.sendResponse(
+        res,
+        httpStatus.FORBIDDEN,
+        false,
+        userConfig.validationMessage.passwordMismatch
+      );
+    }
+    user.password = await bcrypt.hash(body.newPassword, 8);
+    await user.save();
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.OK,
+      true,
+      userConfig.validationMessage.passwordChange
+    );
+  } catch (error) {
+    console.log(error);
   }
 };

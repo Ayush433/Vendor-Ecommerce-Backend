@@ -11,6 +11,7 @@ const SignUpSchema = joi.object({
   email: joi.string().email().required(),
   password: joi.string().required("").max(20),
   gender: joi.string().valid("male", "female", "others").required(),
+  role: joi.string().optional(),
   address: joi
     .object({
       city: joi.string().required(),
@@ -47,14 +48,31 @@ router.post(
   userController.userSignup
 );
 
-router.delete("/delete/:id", userController.deleteUser);
+router.delete(
+  "/delete/:id",
+  auth.CheckAuth,
+  auth.accessToUserAndAdmin,
+  userController.deleteUser
+);
 
-router.patch("/edit/:id", userController.editUser);
+router.patch(
+  "/edit/:id",
+  auth.CheckAuth,
+  auth.accessToUserAndAdmin,
+  userController.editUser
+);
 
-router.get("/single/user/:id", userController.singleUser);
+router.get("/single/user/:id", auth.CheckAuth, userController.singleUser);
 
-router.get("/profile", auth, userController.UserProfile);
+router.get("/profile", auth.CheckAuth, userController.UserProfile);
 
-router.get("/allUser", userController.allUser);
+router.get("/allUser", auth.CheckAuth, auth.isAdmin, userController.allUser);
+
+router.patch(
+  "/changePassword/:id",
+  auth.CheckAuth,
+  auth.isAdmin,
+  userController.changePassword
+);
 
 module.exports = router;

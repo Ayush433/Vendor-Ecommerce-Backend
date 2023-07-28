@@ -1,27 +1,22 @@
+const httpStatus = require("http-status");
 const jwt = require("jsonwebtoken");
-// const httpStatus = require("http-status");
-// const useragent = require("useragent");
-// const loginlog = require("../Controller/user/loginlogs/loginlogSchema");
-// const otherHelper = require("../helper/other.helper");
-// const isEmpty = require("../Middleware/validation/isEmpty");
-// const { getSetting } = require("../helper/seeting.helper");
-// const User = require("../Models/userModel");
-// const userConfig = require("../Controller/user/userConfig");
+const userConfig = require("../Controller/user/userConfig");
+const otherHelper = require("../helper/other.helper");
 
-const auth = (req, res, next) => {
+const CheckAuth = (req, res, next) => {
   try {
     const token = req.headers.authorization;
     if (!token) {
       throw new Error("Authorization header missing");
     }
     const decodedToken = jwt.verify(token.split(" ")[1], "tokenGenerate");
-    console.log(decodedToken);
+
     req.user = {
       id: decodedToken.id,
+      role: decodedToken.role,
     };
     next();
   } catch (err) {
-    console.log("err:", err);
     return res.status(401).json({
       status: 401,
       message: "Unauthorized",
@@ -29,7 +24,56 @@ const auth = (req, res, next) => {
   }
 };
 
-module.exports = auth;
+const isAdmin = (req, res, next) => {
+  console.log("req.user", req.user.role);
+  try {
+    if (req.user.role === "admin") {
+      next();
+    } else {
+      return otherHelper.sendResponse(
+        res,
+        httpStatus.UNAUTHORIZED,
+        false,
+        userConfig.notauthorized
+      );
+    }
+  } catch (err) {
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.FORBIDDEN,
+      false,
+      userConfig.server
+    );
+  }
+};
+
+const accessToUserAndAdmin = (req, res, next) => {
+  console.log("req.user", req.user);
+  try {
+    const { id, role } = req.user;
+    const requestedUserId = req.params.id;
+
+    if (role === "admin" || id === requestedUserId) {
+      next();
+    } else {
+      return otherHelper.sendResponse(
+        res,
+        httpStatus.UNAUTHORIZED,
+        false,
+        userConfig.notauthorized
+      );
+    }
+  } catch (error) {
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.INTERNAL_SERVER_ERROR,
+      false,
+      userConfig.server
+    );
+  }
+};
+
+module.exports = { isAdmin, CheckAuth, accessToUserAndAdmin };
 
 // authMiddleware.authentication = async (req, res, next) => {
 //   try {

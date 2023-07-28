@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const bcrypt = require("bcrypt");
 
 const registrationSchema = new Schema({
   color: {
@@ -30,6 +31,10 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  role: {
+    type: String,
+    default: "user",
+  },
   gender: {
     type: String,
     enum: ["male", "female", "others"],
@@ -49,11 +54,6 @@ const userSchema = new Schema({
       required: true,
     },
   },
-  role: {
-    type: String,
-    default: "user",
-  },
-
   cars: [registrationSchema],
 
   avatar: {
@@ -64,10 +64,26 @@ const userSchema = new Schema({
       type: String,
     },
   },
+
   createdAt: {
     type: Date,
     default: Date.now(),
   },
 });
 
+userSchema.methods.comparePassword = async function (enteredPassword) {
+  try {
+    return await bcrypt.compare(enteredPassword, this.password);
+  } catch (error) {
+    throw error;
+  }
+};
+userSchema.methods.changePassword = async function (newPassword) {
+  try {
+    this.password = await bcrypt.hash(newPassword, 8);
+    await this.save();
+  } catch (error) {
+    throw error;
+  }
+};
 module.exports = mongoose.model("User", userSchema);
