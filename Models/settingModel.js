@@ -3,18 +3,18 @@ const Schema = mongoose.Schema;
 
 const settingSchema = new Schema({
   key: {
-    type: string,
+    type: String,
   },
   type: {
-    type: string,
+    type: String,
     required: true,
   },
   sub_type: {
-    type: string,
+    type: String,
     require: true,
   },
   description: {
-    type: string,
+    type: String,
   },
   value: {
     type: Schema.Types.Mixed,

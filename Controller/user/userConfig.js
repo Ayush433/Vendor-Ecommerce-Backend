@@ -5,6 +5,7 @@ module.exports = {
     designationInvalid: "Sorry, Designation must be a valid value!",
     emailInvalid: "I think Email is Invalid!",
     emailRequired: "Sorry, you missed the Email!",
+    Email: "Email Not Found",
     passwordInvalidLength:
       "Sorry, Password must be minimum 6 characters and maximum 30 characters!",
     passwordRequired: "Sorry, Password is required!",
@@ -13,7 +14,7 @@ module.exports = {
     stateInvalid: "Sorry, State is invalid!",
     districtInvalid: "Sorry, District is invalid!",
     vdcInvalid: "Sorry, VDC/Municipality is invalid!",
-    emailExists: "I am sure, that Email already exists!",
+    emailExists: "I am sure,that Email already exists!",
     rolesInvalid: "Sorry, the Role you selected is invalid!",
     rolesRequired: "Sorry, you missed the roles field!",
     userOrCompanyRequired:
@@ -24,6 +25,7 @@ module.exports = {
     invalid: "Invalid entry",
     isNotNumber: "Invalid. Must be only numbers",
     isEmail: "Please enter Valid Email",
+
     isMongoId: "This is not mongo id",
     isEightChar: "The password must be at least 8 character",
     invalidInput: "invalid input",
@@ -42,8 +44,10 @@ module.exports = {
     isPhone: "Invalid phone no.",
   },
   save: "User data saved successfully!",
+  notfound: "User Not Found",
   delete: "User data deleted successfully!",
   get: "User data obtained successfully!",
+  server: "Internal Server Error",
   gets: "Users data obtained successfully!",
   registerUser:
     "User Register Successfully, Use verification code sent to your email to verify email.",

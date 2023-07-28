@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const User = require("../Models/userModel");
-const sendMail = require("../Utils/sendMail");
-const otherHelper = require("../helper/other.helper");
+const User = require("../../Models/userModel");
+const sendMail = require("../../Utils/sendMail");
+const otherHelper = require("../../helper/other.helper");
 const httpStatus = require("http-status");
 const userConfig = require("./userConfig");
 
@@ -11,7 +11,6 @@ module.exports.userSignup = async (req, res) => {
     const { fullName, password, email, role, gender, address, cars } = req.body;
     const isExistUser = await User.findOne({ email });
     if (isExistUser) {
-      const error = { email: "Email Already exists" };
       const data = {
         email,
         fullName,
@@ -25,8 +24,7 @@ module.exports.userSignup = async (req, res) => {
         httpStatus.CONFLICT,
         false,
         data,
-        error,
-        error.email,
+        userConfig.validationMessage.emailExists,
         null
       );
     }
@@ -73,14 +71,13 @@ module.exports.userLogin = async (req, res) => {
     const isExistUser = await User.findOne({ email });
 
     if (!isExistUser) {
-      errors.email = userConfig.validationMessage.emailRequired;
       return otherHelper.sendResponse(
         res,
         httpStatus.NOT_FOUND,
         false,
         null,
         errors,
-        errors.email,
+        userConfig.validationMessage.emailRequired,
         null
       );
     }
@@ -101,19 +98,25 @@ module.exports.userLogin = async (req, res) => {
           },
         });
       } else {
-        errors.password = userConfig.validationMessage.passwordMismatch;
         return otherHelper.sendResponse(
           res,
           httpStatus.BAD_REQUEST,
           false,
           null,
           errors,
-          errors.password,
+          userConfig.validationMessage.passwordMismatch,
           null
         );
       }
     }
-    return res.status(401).json({ message: "User Not Found Please Login " });
+    // return res.status(401).json({ message: "User Not Found Please Login " });
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.BAD_REQUEST,
+      false,
+      null,
+      userConfig.validationMessage.Email
+    );
   } catch (err) {
     return res.status(400).json(err);
   }
@@ -123,15 +126,24 @@ module.exports.UserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) {
-      res.status(401).json({
-        message: "User Not Found",
-        status: 401,
-      });
+      return otherHelper.sendResponse(
+        res,
+        httpStatus.NOT_FOUND,
+        false,
+        userConfig.notfound
+      );
     }
     const UserProfile = {
       user,
     };
-    res.status(200).json(UserProfile);
+    // res.status(200).json(UserProfile);
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.OK,
+      userConfig.get,
+      true,
+      UserProfile
+    );
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -143,23 +155,39 @@ module.exports.UserProfile = async (req, res) => {
 
 module.exports.singleUser = async (req, res) => {
   try {
-    const user = await User.find(req.params.id);
+    const user = await User.findById(req.params.id);
+
     if (!user) {
-      return res.status(400).json({
-        status: 400,
-        message: "User Not Found",
-      });
+      return otherHelper.sendResponse(
+        res,
+        httpStatus.NOT_FOUND,
+        false,
+        null,
+        userConfig.notfound
+      );
     }
     const UserProfile = {
       fullName: user.fullName,
       email: user.email,
+      address: user.address,
+      role: user.role,
+      cars: user.cars,
+      gender: user.gender,
     };
-    return res.status(200).json(UserProfile);
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.OK,
+      true,
+      null,
+      UserProfile
+    );
   } catch (error) {
-    return res.status(400).json({
-      status: 401,
-      message: { error },
-    });
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.INTERNAL_SERVER_ERROR,
+      false,
+      null
+    );
   }
 };
 
@@ -169,15 +197,20 @@ module.exports.editUser = async (req, res) => {
       new: true,
     });
     console.log(user);
-    return res.status(200).json({
-      status: 200,
-      user,
-    });
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.OK,
+      true,
+      null,
+      userConfig.save
+    );
   } catch (error) {
-    return res.status(401).json({
-      status: 401,
-      message: { error },
-    });
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.INTERNAL_SERVER_ERROR,
+      false,
+      null
+    );
   }
 };
 
@@ -185,14 +218,34 @@ module.exports.deleteUser = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
     console.log(user);
-    return res.status(200).json({
-      status: 200,
-      message: "User Deleted Successfully",
-    });
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.OK,
+      true,
+      null,
+      userConfig.delete
+    );
   } catch (error) {
-    return res.status(400).json({
-      status: 401,
-      message: { error },
-    });
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.INTERNAL_SERVER_ERROR,
+      false,
+      null
+    );
+  }
+};
+
+module.exports.allUser = async (req, res) => {
+  try {
+    const user = await User.find();
+    console.log(user);
+    return otherHelper.sendResponse(res, httpStatus.OK, true, user);
+  } catch (error) {
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.INTERNAL_SERVER_ERROR,
+      false,
+      userConfig.server
+    );
   }
 };
