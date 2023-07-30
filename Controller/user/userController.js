@@ -5,11 +5,18 @@ const sendMail = require("../../Utils/sendMail");
 const otherHelper = require("../../helper/other.helper");
 const httpStatus = require("http-status");
 const userConfig = require("./userConfig");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+const upload = multer({ dest: "uploads/" });
 
 module.exports.userSignup = async (req, res) => {
   try {
-    const { fullName, password, email, role, gender, address, cars } = req.body;
+    const { fullName, password, email, role, gender, address, cars, image } =
+      req.body;
+
     const isExistUser = await User.findOne({ email });
+
     if (isExistUser) {
       const data = {
         email,
@@ -18,6 +25,7 @@ module.exports.userSignup = async (req, res) => {
         gender,
         cars,
         address,
+        image,
       };
       return otherHelper.sendResponse(
         res,
@@ -28,28 +36,55 @@ module.exports.userSignup = async (req, res) => {
         null
       );
     }
+
     const hashedPassword = await bcrypt.hash(password, 8);
+
+    // Extract the file from the request object if it exists
     const verificationToken = jwt.sign({ email }, "tokenGenerate", {
       expiresIn: "1h",
     });
+    if (req.file) {
+      const { path: imagePath, filename } = req.file;
 
-    const user = await User.create({
-      fullName,
-      email,
-      password: hashedPassword,
-      verificationToken,
-      role,
-      cars,
-      gender,
-      address,
-    });
+      const user = await User.create({
+        fullName,
+        email,
+        password: hashedPassword,
+        verificationToken,
+        role,
+        cars,
+        gender,
+        address,
+        image: {
+          public_id: filename,
+          url: imagePath,
+        },
+      });
+      return otherHelper.sendResponse(
+        res,
+        httpStatus.OK,
+        true,
+        user,
+        userConfig.registerUser
+      );
+    } else {
+      return otherHelper.sendResponse(
+        res,
+        httpStatus.NOT_FOUND,
+        false,
+        userConfig.image
+      );
+    }
+
     const verificationLink = `http://localhost:5173/verify/${verificationToken}`;
+
     try {
       await sendMail({
         email,
         subject: "Email Verification",
         text: `Please click on the following link to verify your email: ${verificationLink}`,
       });
+
       return res.status(201).json({
         status: 201,
         message: `Please check your email (${email}) to activate your account.`,

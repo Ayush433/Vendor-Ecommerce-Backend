@@ -5,6 +5,8 @@ const auth = require("../../Middleware/check_auth");
 const userController = require("../../Controller/user/userController");
 const validation = require("express-joi-validation").createValidator({});
 const userValidation = require("../../Controller/user/userValidation");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 
 const SignUpSchema = joi.object({
   fullName: joi.string().min(5).max(80).required(),
@@ -12,23 +14,23 @@ const SignUpSchema = joi.object({
   password: joi.string().required("").max(20),
   gender: joi.string().valid("male", "female", "others").required(),
   role: joi.string().optional(),
-  address: joi
-    .object({
-      city: joi.string().required(),
-      state: joi.string().required(),
-    })
-    .required(),
-  cars: joi
-    .array()
-    .items(
-      joi.object({
-        color: joi.string().required(),
-        type: joi.string().required(),
-        registration: joi.date().iso().required(),
-        capacity: joi.number().integer().required(),
-      })
-    )
-    .required(),
+  // address: joi
+  //   .object({
+  //     city: joi.string().required(),
+  //     state: joi.string().required(),
+  //   })
+  //   .required(),
+  // cars: joi
+  //   .array()
+  //   .items(
+  //     joi.object({
+  //       color: joi.string().required(),
+  //       type: joi.string().required(),
+  //       registration: joi.date().iso().required(),
+  //       capacity: joi.number().integer().required(),
+  //     })
+  //   )
+  //   .required(),
 });
 const LoginSchema = joi.object({
   email: joi.string().email().required(),
@@ -37,6 +39,7 @@ const LoginSchema = joi.object({
 
 router.post(
   "/signUp",
+  upload.single("image"),
   validation.body(SignUpSchema),
   userController.userSignup
 );
@@ -71,7 +74,7 @@ router.get("/allUser", auth.CheckAuth, auth.isAdmin, userController.allUser);
 router.patch(
   "/changePassword/:id",
   auth.CheckAuth,
-  auth.isAdmin,
+  auth.accessToUserAndAdmin,
   userController.changePassword
 );
 

@@ -44,19 +44,18 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  address: {
-    city: {
-      type: String,
-      required: true,
-    },
-    state: {
-      type: String,
-      required: true,
-    },
-  },
-  cars: [registrationSchema],
-
-  avatar: {
+  // address: {
+  //   city: {
+  //     type: String,
+  //     required: true,
+  //   },
+  //   state: {
+  //     type: String,
+  //     required: true,
+  //   },
+  // },
+  // cars: [registrationSchema],
+  image: {
     public_id: {
       type: String,
     },
