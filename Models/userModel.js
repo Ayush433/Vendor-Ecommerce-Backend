@@ -11,14 +11,21 @@ const registrationSchema = new Schema({
     type: String,
     required: true,
   },
+  capacity: {
+    type: Number,
+  },
   registration: {
     type: Date,
     required: true,
-    default: Date.now,
+    default: Date.now(),
   },
-  capacity: {
-    type: Number,
-    required: true,
+  image: {
+    public_id: {
+      type: String,
+    },
+    url: {
+      type: String,
+    },
   },
 });
 
@@ -44,17 +51,16 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  // address: {
-  //   city: {
-  //     type: String,
-  //     required: true,
-  //   },
-  //   state: {
-  //     type: String,
-  //     required: true,
-  //   },
-  // },
-  // cars: [registrationSchema],
+  address: {
+    city: {
+      type: String,
+      required: true,
+    },
+    state: {
+      type: String,
+      required: true,
+    },
+  },
   image: {
     public_id: {
       type: String,
@@ -63,6 +69,7 @@ const userSchema = new Schema({
       type: String,
     },
   },
+  cars: [registrationSchema],
 
   createdAt: {
     type: Date,

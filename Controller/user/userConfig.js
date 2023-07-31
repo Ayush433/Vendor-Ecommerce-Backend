@@ -46,6 +46,7 @@ module.exports = {
   },
   save: "User data saved successfully!",
   notfound: "User Not Found",
+  image: "Image Required",
   delete: "User data deleted successfully!",
   get: "User data obtained successfully!",
   server: "Internal Server Error",

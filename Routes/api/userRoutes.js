@@ -6,7 +6,17 @@ const userController = require("../../Controller/user/userController");
 const validation = require("express-joi-validation").createValidator({});
 const userValidation = require("../../Controller/user/userValidation");
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+const upload = multer({ storage: storage });
 
 const SignUpSchema = joi.object({
   fullName: joi.string().min(5).max(80).required(),
@@ -14,23 +24,22 @@ const SignUpSchema = joi.object({
   password: joi.string().required("").max(20),
   gender: joi.string().valid("male", "female", "others").required(),
   role: joi.string().optional(),
-  // address: joi
-  //   .object({
-  //     city: joi.string().required(),
-  //     state: joi.string().required(),
-  //   })
-  //   .required(),
-  // cars: joi
-  //   .array()
-  //   .items(
-  //     joi.object({
-  //       color: joi.string().required(),
-  //       type: joi.string().required(),
-  //       registration: joi.date().iso().required(),
-  //       capacity: joi.number().integer().required(),
-  //     })
-  //   )
-  //   .required(),
+  address: joi.object({
+    city: joi.string().required(),
+    state: joi.string().required(),
+  }),
+  cars: joi
+    .array()
+    .items(
+      joi.object({
+        color: joi.string().required(),
+        type: joi.string().required(),
+        registration: joi.date().iso().required(),
+        capacity: joi.number().integer(),
+        image: joi.string(),
+      })
+    )
+    .required(),
 });
 const LoginSchema = joi.object({
   email: joi.string().email().required(),
@@ -40,6 +49,13 @@ const LoginSchema = joi.object({
 router.post(
   "/signUp",
   upload.single("image"),
+  validation.body(SignUpSchema),
+  userController.userSignup
+);
+
+router.post(
+  "/SignUp",
+  upload.single("cars[0][image]"),
   validation.body(SignUpSchema),
   userController.userSignup
 );
