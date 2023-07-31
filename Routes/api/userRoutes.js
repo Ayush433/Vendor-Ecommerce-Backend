@@ -7,16 +7,41 @@ const validation = require("express-joi-validation").createValidator({});
 const userValidation = require("../../Controller/user/userValidation");
 const multer = require("multer");
 
+const allowedImageExtensions = [".jpg", ".jpeg", ".png", ".gif"];
+
+const fileFilter = (req, file, cb) => {
+  const extension = "." + file.originalname.split(".").pop().toLowerCase();
+  if (allowedImageExtensions.includes(extension)) {
+    //Accept file
+    cb(null, true);
+  } else {
+    cb(
+      new Error(
+        "Invalid file extension. Only " +
+          allowedImageExtensions.join(", ") +
+          " files are allowed."
+      )
+    );
+  }
+};
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./uploads");
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, `${Date.now()}-${file.originalname}`);
+    cb(null, `${Date.now()}--${file.originalname}`);
   },
 });
-const upload = multer({ storage: storage });
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fieldNameSize: 50, // TODO: Check if this size is enough
+    fileSize: 15000000, // 150 KB for a 1080x1080 JPG 90
+  },
+  fileFilter: fileFilter,
+});
 
 const SignUpSchema = joi.object({
   fullName: joi.string().min(5).max(80).required(),
@@ -55,7 +80,7 @@ router.post(
 
 router.post(
   "/SignUp",
-  upload.single("cars[0][image]"),
+  upload.single("image"),
   validation.body(SignUpSchema),
   userController.userSignup
 );

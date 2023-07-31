@@ -51,6 +51,7 @@ module.exports = {
   get: "User data obtained successfully!",
   server: "Internal Server Error",
   gets: "Users data obtained successfully!",
+  extension: "Image Extension should be in Jpg , jpeg , png , gif",
   registerUser:
     "User Register Successfully, Use verification code sent to your email to verify email.",
   registerAdmin: "User Register Successfully.",
