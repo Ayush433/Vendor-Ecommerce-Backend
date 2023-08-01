@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const User = require("../../Models/userModel");
-const sendMail = require("../../Utils/sendMail");
+// const sendMail = require("../../Utils/sendMail");
 const otherHelper = require("../../helper/other.helper");
 const httpStatus = require("http-status");
 const userConfig = require("./userConfig");
@@ -10,8 +10,16 @@ const upload = multer({ dest: "uploads/" });
 
 module.exports.userSignup = async (req, res) => {
   try {
-    const { fullName, password, email, role, gender, address, cars, image } =
-      req.body;
+    const { fullName, password, email, role, gender, address, cars } = req.body;
+
+    if (!req.files || req.files.length === 0) {
+      return otherHelper.sendResponse(
+        res,
+        httpStatus.BAD_REQUEST,
+        false,
+        userConfig.image
+      );
+    }
 
     const isExistUser = await User.findOne({ email });
 
@@ -23,7 +31,6 @@ module.exports.userSignup = async (req, res) => {
         gender,
         cars,
         address,
-        image,
       };
       return otherHelper.sendResponse(
         res,
@@ -40,56 +47,33 @@ module.exports.userSignup = async (req, res) => {
     const verificationToken = jwt.sign({ email }, "tokenGenerate", {
       expiresIn: "1h",
     });
-    if (req.file) {
-      const { path: imagePath, filename } = req.file;
 
-      const user = await User.create({
-        fullName,
-        email,
-        password: hashedPassword,
-        verificationToken,
-        role,
-        cars,
-        gender,
-        address,
-        image: {
-          public_id: filename,
-          url: imagePath,
-        },
-      });
-      return otherHelper.sendResponse(
-        res,
-        httpStatus.OK,
-        true,
-        user,
-        userConfig.registerUser
-      );
-    } else {
-      return otherHelper.sendResponse(
-        res,
-        httpStatus.BAD_REQUEST,
-        false,
-        userConfig.image
-      );
-    }
+    const images = req.files.map((file) => ({
+      public_id: file?.filename,
+      url: file?.path,
+    }));
 
-    // const verificationLink = `http://localhost:5173/verify/${verificationToken}`;
+    console.log("images", images);
 
-    // try {
-    //   await sendMail({
-    //     email,
-    //     subject: "Email Verification",
-    //     text: `Please click on the following link to verify your email: ${verificationLink}`,
-    //   });
+    const user = await User.create({
+      fullName,
+      email,
+      password: hashedPassword,
+      verificationToken,
+      role,
+      cars,
+      gender,
+      address,
+      image: images,
+    });
 
-    //   return res.status(201).json({
-    //     status: 201,
-    //     message: `Please check your email (${email}) to activate your account.`,
-    //   });
-    // } catch (error) {
-    //   console.log(error);
-    //   return res.status(500).json({ message: "Internal Server Error" });
-    // }
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.OK,
+      true,
+      user,
+      userConfig.registerUser
+    );
   } catch (err) {
     console.log(err);
     return res.status(400).json({ message: "Incorrect" });
@@ -99,16 +83,13 @@ module.exports.userSignup = async (req, res) => {
 module.exports.userLogin = async (req, res) => {
   try {
     const { password, email } = req.body;
-    let errors = {};
     const isExistUser = await User.findOne({ email });
-
     if (!isExistUser) {
       return otherHelper.sendResponse(
         res,
         httpStatus.NOT_FOUND,
         false,
         null,
-        errors,
         userConfig.validationMessage.emailRequired,
         null
       );
@@ -123,7 +104,6 @@ module.exports.userLogin = async (req, res) => {
           { id: isExistUser._id, role: isExistUser.role },
           "tokenGenerate"
         );
-        console.log("generated Token", token);
         return res.status(200).json({
           status: 200,
           data: {
@@ -140,7 +120,6 @@ module.exports.userLogin = async (req, res) => {
           httpStatus.BAD_REQUEST,
           false,
           null,
-          errors,
           userConfig.validationMessage.passwordMismatch,
           null
         );

@@ -7,23 +7,22 @@ const validation = require("express-joi-validation").createValidator({});
 const userValidation = require("../../Controller/user/userValidation");
 const multer = require("multer");
 
-const allowedImageExtensions = [".jpg", ".jpeg", ".png", ".gif"];
+// const allowedImageExtensions = [".jpg", ".jpeg", ".png", ".gif"];
 
-const fileFilter = (req, file, cb) => {
-  const extension = "." + file.originalname.split(".").pop().toLowerCase();
-  if (allowedImageExtensions.includes(extension)) {
-    //Accept file
-    cb(null, true);
-  } else {
-    cb(
-      new Error(
-        "Invalid file extension. Only " +
-          allowedImageExtensions.join(", ") +
-          " files are allowed."
-      )
-    );
-  }
-};
+// const fileFilter = (req, file, cb) => {
+//   const extension = "." + file.originalname.split(".").pop().toLowerCase();
+//   if (allowedImageExtensions.includes(extension)) {
+//     cb(null, true);
+//   } else {
+//     cb(
+//       new Error(
+//         "Invalid file extension. Only " +
+//           allowedImageExtensions.join(", ") +
+//           " files are allowed."
+//       )
+//     );
+//   }
+// };
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./uploads");
@@ -36,15 +35,16 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: {
-    fieldNameSize: 50, // TODO: Check if this size is enough
-    fileSize: 15000000, // 150 KB for a 1080x1080 JPG 90
-  },
-  fileFilter: fileFilter,
+  // limits: {
+  //   fieldNameSize: 50, // TODO: Check if this size is enough
+  //   fileSize: 15000000, // 150 KB for a 1080x1080 JPG 90
+  // },
+  // fileFilter: fileFilter,
 });
 
 const SignUpSchema = joi.object({
   fullName: joi.string().min(5).max(80).required(),
+  image: joi.string(),
   email: joi.string().email().required(),
   password: joi.string().required("").max(20),
   gender: joi.string().valid("male", "female", "others").required(),
@@ -61,7 +61,7 @@ const SignUpSchema = joi.object({
         type: joi.string().required(),
         registration: joi.date().iso().required(),
         capacity: joi.number().integer(),
-        image: joi.string(),
+        // image: joi.string(),
       })
     )
     .required(),
@@ -71,16 +71,16 @@ const LoginSchema = joi.object({
   password: joi.string().required(),
 });
 
-router.post(
-  "/signUp",
-  upload.single("image"),
-  validation.body(SignUpSchema),
-  userController.userSignup
-);
+// router.post(
+//   "/SignUp",
+//   upload.array("cars[0][image]", 3),
+//   validation.body(SignUpSchema),
+//   userController.userSignup
+// );
 
 router.post(
   "/SignUp",
-  upload.single("image"),
+  upload.array("image", 3),
   validation.body(SignUpSchema),
   userController.userSignup
 );

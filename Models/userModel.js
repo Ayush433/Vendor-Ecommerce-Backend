@@ -19,14 +19,16 @@ const registrationSchema = new Schema({
     required: true,
     default: Date.now(),
   },
-  // image: {
-  //   public_id: {
-  //     type: String,
-  //   },
-  //   url: {
-  //     type: String,
-  //   },
-  // },
+  image: [
+    {
+      public_id: {
+        type: String,
+      },
+      url: {
+        type: String,
+      },
+    },
+  ],
 });
 
 const userSchema = new Schema({
@@ -61,14 +63,16 @@ const userSchema = new Schema({
       required: true,
     },
   },
-  image: {
-    public_id: {
-      type: String,
+  image: [
+    {
+      public_id: {
+        type: String,
+      },
+      url: {
+        type: String,
+      },
     },
-    url: {
-      type: String,
-    },
-  },
+  ],
 
   cars: [registrationSchema],
 
