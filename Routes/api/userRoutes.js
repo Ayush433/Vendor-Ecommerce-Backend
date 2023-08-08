@@ -6,23 +6,7 @@ const userController = require("../../Controller/user/userController");
 const validation = require("express-joi-validation").createValidator({});
 const userValidation = require("../../Controller/user/userValidation");
 const multer = require("multer");
-
-// const allowedImageExtensions = [".jpg", ".jpeg", ".png", ".gif"];
-
-// const fileFilter = (req, file, cb) => {
-//   const extension = "." + file.originalname.split(".").pop().toLowerCase();
-//   if (allowedImageExtensions.includes(extension)) {
-//     cb(null, true);
-//   } else {
-//     cb(
-//       new Error(
-//         "Invalid file extension. Only " +
-//           allowedImageExtensions.join(", ") +
-//           " files are allowed."
-//       )
-//     );
-//   }
-// };
+const userActivity = require("../../Models/userActivity/userActivityController");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./uploads");
@@ -35,20 +19,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  // limits: {
-  //   fieldNameSize: 50, // TODO: Check if this size is enough
-  //   fileSize: 15000000, // 150 KB for a 1080x1080 JPG 90
-  // },
-  // fileFilter: fileFilter,
 });
 
 const SignUpSchema = joi.object({
   fullName: joi.string().min(5).max(80).required(),
   image: joi.string(),
+  number: joi.string().required(),
   email: joi.string().email().required(),
   password: joi.string().required("").max(20),
   gender: joi.string().valid("male", "female", "others").required(),
   role: joi.string().optional(),
+
   address: joi.object({
     city: joi.string().required(),
     state: joi.string().required(),
@@ -111,6 +92,8 @@ router.get("/single/user/:id", auth.CheckAuth, userController.singleUser);
 router.get("/profile", auth.CheckAuth, userController.UserProfile);
 
 router.get("/allUser", auth.CheckAuth, auth.isAdmin, userController.allUser);
+
+router.get("/users", userController.getUser);
 
 router.patch(
   "/changePassword/:id",

@@ -10,7 +10,6 @@ const CheckAuth = (req, res, next) => {
       throw new Error("Authorization header missing");
     }
     const decodedToken = jwt.verify(token.split(" ")[1], "tokenGenerate");
-
     req.user = {
       id: decodedToken.id,
       role: decodedToken.role,

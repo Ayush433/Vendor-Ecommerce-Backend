@@ -19,6 +19,7 @@ const registrationSchema = new Schema({
     required: true,
     default: Date.now(),
   },
+
   image: [
     {
       public_id: {
@@ -43,6 +44,10 @@ const userSchema = new Schema({
   role: {
     type: String,
     default: "user",
+  },
+  number: {
+    type: Number,
+    required: true,
   },
   gender: {
     type: String,

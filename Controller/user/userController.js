@@ -6,11 +6,13 @@ const otherHelper = require("../../helper/other.helper");
 const httpStatus = require("http-status");
 const userConfig = require("./userConfig");
 const multer = require("multer");
+const userActivitySchema = require("../../Models/userActivity/userActivitySchema");
 const upload = multer({ dest: "uploads/" });
 
 module.exports.userSignup = async (req, res) => {
   try {
-    const { fullName, password, email, role, gender, address, cars } = req.body;
+    const { fullName, password, email, role, gender, address, cars, number } =
+      req.body;
 
     if (!req.files || req.files.length === 0) {
       return otherHelper.sendResponse(
@@ -31,6 +33,7 @@ module.exports.userSignup = async (req, res) => {
         gender,
         cars,
         address,
+        number,
       };
       return otherHelper.sendResponse(
         res,
@@ -64,6 +67,7 @@ module.exports.userSignup = async (req, res) => {
       cars,
       gender,
       address,
+      number,
       image: images,
     });
 
@@ -85,6 +89,13 @@ module.exports.userLogin = async (req, res) => {
     const { password, email } = req.body;
     const isExistUser = await User.findOne({ email });
     if (!isExistUser) {
+      await userActivitySchema(
+        req.user._id,
+        "delete",
+        "User",
+        isExistUser.toObject(),
+        null
+      );
       return otherHelper.sendResponse(
         res,
         httpStatus.NOT_FOUND,
@@ -145,6 +156,11 @@ module.exports.userLogin = async (req, res) => {
 module.exports.UserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
+    const Activity = await userActivitySchema.create({
+      userId: req.user.id,
+      action: "Profile View",
+      timeStamps: Date.now(),
+    });
     if (!user) {
       return otherHelper.sendResponse(
         res,
@@ -153,6 +169,7 @@ module.exports.UserProfile = async (req, res) => {
         userConfig.notfound
       );
     }
+
     const UserProfile = {
       user,
     };
@@ -217,6 +234,12 @@ module.exports.editUser = async (req, res) => {
       new: true,
     });
     console.log("user", user);
+    const Activity = await userActivitySchema.create({
+      userId: req.user.id,
+      action: "Edit",
+      timeStamps: Date.now(),
+    });
+    console.log("Activity", Activity);
     return otherHelper.sendResponse(
       res,
       httpStatus.OK,
@@ -238,6 +261,10 @@ module.exports.deleteUser = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
     if (user) {
+      const activity = await userActivitySchema.create({
+        userId: req.user.id,
+        action: "delete",
+      });
       return otherHelper.sendResponse(
         res,
         httpStatus.OK,
@@ -266,6 +293,8 @@ module.exports.deleteUser = async (req, res) => {
 module.exports.allUser = async (req, res) => {
   try {
     const user = await User.find();
+    await userActivitySchema(user._id, "delete", "User");
+
     console.log(user);
     return otherHelper.sendResponse(res, httpStatus.OK, true, user);
   } catch (error) {
@@ -303,6 +332,33 @@ module.exports.changePassword = async (req, res) => {
       httpStatus.OK,
       true,
       userConfig.validationMessage.passwordChange
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+module.exports.getUser = async (req, res) => {
+  try {
+    // const result = await User.find({
+    //   email: { $nin: ["admin1111@gmail.com", "admin@gmail.com"] },
+    // });
+    // const result = await User.find({
+    //   $or: [{ fullName: "AyushAdhikari" }, { email: "admin111@gmail.com" }],
+    // });
+    const result = await User.find({
+      $or: [{ fullName: "Ayush Adhikari" }, { email: "admin1111@gmail.com" }],
+    })
+      // .countDocuments()
+      .sort({ name: -1 });
+
+    // console.log(result);
+    return otherHelper.sendResponse(
+      res,
+      httpStatus.OK,
+      true,
+      result,
+      userConfig.get
     );
   } catch (error) {
     console.log(error);

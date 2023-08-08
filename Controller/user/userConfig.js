@@ -58,6 +58,7 @@ module.exports = {
   emailVerify: "Email Verified Successful",
   subscribeFail: "Subscription failed",
   notauthorized: "Not Authorized",
+  userActivity: "User Activity Successfully Performed",
   alverified: {
     message: "Already verified. You can log in",
     is_verified: true,
