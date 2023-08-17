@@ -385,6 +385,48 @@ module.exports.getUser = async (req, res) => {
     //   $and: [{ number: { $lt: 40 } }, { email: { $eq: "user@gmail.com" } }],
     // });
 
+    // Not Operator
+
+    // const result = await User.find({
+    //   number: { $not: { $lt: 0 }},
+    // });
+
+    //Nor Operator
+
+    // const result = await User.find({
+    //   $nor: [{ number: { $gt: 100 } }, { email: "user1@gmail.com" }],
+    // });
+
+    // Element Query Operator
+
+    //exists
+    // const result = await User.find({
+    //   number: { $exists: true },
+    // });
+
+    //type
+    // const result = await User.find({
+    //   email: { $type: ["string"] },
+    // });
+
+    //Evaluation Query Operator
+    //expr
+
+    // const result = await User.find({
+    //   fullName: { $regex: /ua*/g },
+    // });
+
+    //Size
+    // const result = await User.find({
+    //   cars: { $size: 2 },
+    // });
+
+    //Projection Operators
+
+    //projection
+
+    const result = await User.find({});
+
     return otherHelper.sendResponse(
       res,
       httpStatus.OK,
