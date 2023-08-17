@@ -11,8 +11,17 @@ const upload = multer({ dest: "uploads/" });
 
 module.exports.userSignup = async (req, res) => {
   try {
-    const { fullName, password, email, role, gender, address, cars, number } =
-      req.body;
+    const {
+      fullName,
+      password,
+      email,
+      role,
+      gender,
+      address,
+      cars,
+      number,
+      value,
+    } = req.body;
 
     if (!req.files || req.files.length === 0) {
       return otherHelper.sendResponse(
@@ -34,6 +43,7 @@ module.exports.userSignup = async (req, res) => {
         cars,
         address,
         number,
+        value,
       };
       return otherHelper.sendResponse(
         res,
@@ -68,6 +78,7 @@ module.exports.userSignup = async (req, res) => {
       gender,
       address,
       number,
+      value,
       image: images,
     });
 
@@ -423,10 +434,13 @@ module.exports.getUser = async (req, res) => {
 
     //Projection Operators
 
-    //projection
+    //projection is used to display the specific items only from the database
+    const result = await User.find(
+      { email: "user100000@gmail.com" },
+      { fullName: 1, email: 1, role: 1, value: { $slice: 1 } }
+    );
 
-    const result = await User.find({});
-
+    //elemMatch is only for the Array match
     return otherHelper.sendResponse(
       res,
       httpStatus.OK,

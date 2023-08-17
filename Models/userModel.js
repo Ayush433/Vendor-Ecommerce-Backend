@@ -68,6 +68,12 @@ const userSchema = new Schema({
       required: true,
     },
   },
+  value: [
+    {
+      type: Number,
+      required: true,
+    },
+  ],
   image: [
     {
       public_id: {

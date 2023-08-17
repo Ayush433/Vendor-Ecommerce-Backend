@@ -21,32 +21,34 @@ const upload = multer({
   storage: storage,
 });
 
-const SignUpSchema = joi.object({
-  fullName: joi.string().min(5).max(80).required(),
-  image: joi.string(),
-  number: joi.string().required(),
-  email: joi.string().email().required(),
-  password: joi.string().required("").max(20),
-  gender: joi.string().valid("male", "female", "others").required(),
-  role: joi.string().optional(),
+const SignUpSchema = joi
+  .object({
+    fullName: joi.string().min(5).max(80).required(),
+    image: joi.string(),
+    number: joi.string().required(),
+    email: joi.string().email().required(),
+    password: joi.string().required("").max(20),
+    gender: joi.string().valid("male", "female", "others").required(),
+    role: joi.string().optional(),
 
-  address: joi.object({
-    city: joi.string().required(),
-    state: joi.string().required(),
-  }),
-  cars: joi
-    .array()
-    .items(
-      joi.object({
-        color: joi.string().required(),
-        type: joi.string().required(),
-        registration: joi.date().iso().required(),
-        capacity: joi.number().integer(),
-        // image: joi.string(),
-      })
-    )
-    .required(),
-});
+    address: joi.object({
+      city: joi.string().required(),
+      state: joi.string().required(),
+    }),
+    cars: joi
+      .array()
+      .items(
+        joi.object({
+          color: joi.string().required(),
+          type: joi.string().required(),
+          registration: joi.date().iso().required(),
+          capacity: joi.number().integer(),
+          // image: joi.string(),
+        })
+      )
+      .required(),
+  })
+  .unknown();
 const LoginSchema = joi.object({
   email: joi.string().email().required(),
   password: joi.string().required(),
