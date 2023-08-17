@@ -340,19 +340,51 @@ module.exports.changePassword = async (req, res) => {
 
 module.exports.getUser = async (req, res) => {
   try {
+    // Comparison Operator
+
     // const result = await User.find({
-    //   email: { $nin: ["admin1111@gmail.com", "admin@gmail.com"] },
+    //   email: { $nin: ["admin1111@gmail.com", "admin@gmail.com"] }, //$nin ly like database mah navako iteam dinxa
     // });
     // const result = await User.find({
     //   $or: [{ fullName: "AyushAdhikari" }, { email: "admin111@gmail.com" }],
     // });
-    const result = await User.find({
-      $or: [{ fullName: "Ayush Adhikari" }, { email: "admin1111@gmail.com" }],
-    })
-      // .countDocuments()
-      .sort({ name: -1 });
+    // const result = await User.find({
+    //   $or: [{ fullName: "Ayush Adhikari" }, { email: "admin1111@gmail.com" }],
+    // })
+    //   // .countDocuments()
+    //   .sort({ name: -1 });
+    // const result = await User.find({
+    //   fullName: { $regex: /^A/ },
+    // });
+    // const result = await User.find({
+    //   $text: { $search: "user" },
+    // });
 
-    // console.log(result);
+    // const result = await User.find({
+    //   email: {
+    //     $in: ["admin@gmail.com", "user1@gmail.com", "user123@gmail.com"],
+    //   },
+    // });
+
+    // const result = await User.find({
+    //   number: {
+    //     $lte: 100,
+    //   },
+    // });
+
+    // const result = await User.find({
+    //   number: {
+    //     $nin: ["100", "40"],
+    //   },
+    // });
+
+    //Logical Query Operator
+
+    // and Operator
+    // const result = await User.find({
+    //   $and: [{ number: { $lt: 40 } }, { email: { $eq: "user@gmail.com" } }],
+    // });
+
     return otherHelper.sendResponse(
       res,
       httpStatus.OK,
